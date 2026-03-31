@@ -108,26 +108,15 @@ mostrar(items);
 function mostrar(items){
 listaActual = items;
 
-let atleta = localStorage.getItem("atleta") || "SIN_NOMBRE";
-let semana = window.sem || "1";
-
-db.collection("registros")
-.where("atleta","==",atleta)
-.where("semana","==",semana)
-.get()
-.then(snap=>{
-
-let hechos = {};
-snap.forEach(d=>{
-  hechos[d.data().ejercicio] = true;
-});
-
 render(
 `<button class="back" onclick="history.back()">⬅</button>`+
+
 items.map((r,i)=>{
 
 let nombre = r.Ejercicio||r.Nombre||"Ejercicio";
-let done = hechos[nombre] ? "done" : "";
+
+// 👇 SOLO fuerza y preventivo
+let mostrarCheck = (r.Tipo === "Fuerza" || r.Tipo === "Preventivo");
 
 return `
 <div class="card">
@@ -141,15 +130,17 @@ ${r.Peso ? " | Peso: "+r.Peso : ""}
 </div>
 </button>
 
-<button class="check ${done}" onclick="marcar(${i}, this)">✔</button>
+${
+mostrarCheck
+? `<button class="check" onclick="marcar(${i}, this)">✔</button>`
+: ``
+}
 
 </div>
 `;
 
 }).join('')
 );
-
-});
 
 }
 
