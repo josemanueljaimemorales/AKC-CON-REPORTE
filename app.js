@@ -232,22 +232,42 @@ init();
 
 
 function marcar(i,btn){
+
+ if(btn.classList.contains("done")){
+   return;
+ }
+
  let r = listaActual[i];
  let nombre = r.Ejercicio || r.Nombre || "Ejercicio";
- btn.classList.toggle("done");
+
+ btn.classList.add("done");
+ btn.disabled = true;
+
  guardarEjercicio(nombre);
+
 }
 
-function guardarEjercicio(nombre){
+async function guardarEjercicio(nombre){
+
  const atleta = localStorage.getItem("atleta") || "SIN_NOMBRE";
  const semana = window.sem || "1";
  const dia = new Date().toLocaleDateString('es-MX',{weekday:'long'});
 
- if(typeof db !== "undefined"){
-   db.collection("registros").add({
-     atleta, semana, dia, ejercicio: nombre, fecha:new Date()
-   });
+ const snap = await db.collection("registros")
+   .where("atleta","==",atleta)
+   .where("semana","==",semana)
+   .where("dia","==",dia)
+   .where("ejercicio","==",nombre)
+   .get();
+
+ if(!snap.empty){
+   return;
  }
+
+ db.collection("registros").add({
+   atleta, semana, dia, ejercicio:nombre, fecha:new Date()
+ });
+
 }
 
 function reiniciarConteo(){
