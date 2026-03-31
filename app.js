@@ -108,6 +108,22 @@ mostrar(items);
 function mostrar(items){
 listaActual = items;
 
+let atleta = localStorage.getItem("atleta") || "SIN_NOMBRE";
+let semana = window.sem || "1";
+let dia = new Date().toLocaleDateString('es-MX',{weekday:'long'});
+
+db.collection("registros")
+.where("atleta","==",atleta)
+.where("semana","==",semana)
+.where("dia","==",dia)
+.get()
+.then(snap=>{
+
+let hechos = {};
+snap.forEach(d=>{
+ hechos[d.data().ejercicio] = true;
+});
+
 render(
 `<button class="back" onclick="history.back()">⬅</button>`+
 
@@ -117,6 +133,8 @@ let nombre = r.Ejercicio||r.Nombre||"Ejercicio";
 
 // 👇 SOLO fuerza y preventivo
 let mostrarCheck = (r.Tipo === "Fuerza" || r.Tipo === "Preventivo");
+
+let done = hechos[nombre] ? "done" : "";
 
 return `
 <div class="card">
@@ -132,7 +150,7 @@ ${r.Peso ? " | Peso: "+r.Peso : ""}
 
 ${
 mostrarCheck
-? `<button class="check" onclick="marcar(${i}, this)">✔</button>`
+? `<button class="check ${done}" ${done ? "disabled" : ""} onclick="marcar(${i}, this)">✔</button>`
 : ``
 }
 
@@ -141,6 +159,8 @@ mostrarCheck
 
 }).join('')
 );
+
+});
 
 }
 
