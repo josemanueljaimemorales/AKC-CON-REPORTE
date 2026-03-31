@@ -178,30 +178,39 @@ render(`
 
 function verReporte(){
 
-let atleta = localStorage.getItem("atleta") || "SIN_NOMBRE";
-let semana = window.sem || "1";
+db.collection("registros").get().then(snap=>{
 
-db.collection("registros")
-.where("atleta","==",atleta)
-.where("semana","==",semana)
-.get()
-.then(snap=>{
-
-let conteo = {};
+let data = {};
 
 snap.forEach(d=>{
- let dia = d.data().dia;
- conteo[dia] = (conteo[dia]||0)+1;
+ let r = d.data();
+
+ let atleta = r.atleta;
+ let dia = r.dia;
+
+ if(!data[atleta]) data[atleta] = {};
+ if(!data[atleta][dia]) data[atleta][dia] = 0;
+
+ data[atleta][dia]++;
 });
 
 let html = `
 <button class="back" onclick="history.back()">⬅</button>
-<h2>${atleta}</h2>
-<h3>Semana ${semana}</h3>
+<h2>📊 REPORTE GENERAL</h2>
 `;
 
-for(let d in conteo){
- html += `<p>${d}: ${conteo[d]}</p>`;
+for(let atleta in data){
+
+ html += `<h3>${atleta}</h3>`;
+
+ let total = 0;
+
+ for(let dia in data[atleta]){
+   html += `<p>${dia}: ${data[atleta][dia]}</p>`;
+   total += data[atleta][dia];
+ }
+
+ html += `<b>Total: ${total}</b><hr>`;
 }
 
 render(html);
