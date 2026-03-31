@@ -30,48 +30,41 @@ button{padding:15px;margin:10px;font-size:18px}
 
 <div id="reporte"></div>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-  
-<script>
-window.onload = function(){
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyBNRAkDXLlw5fyiT01-ZfUyB0A7ShsAxyg",
   authDomain: "akc-con-reporte.firebaseapp.com",
   projectId: "akc-con-reporte"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const atletas = ["YERIK","FER","VELA","ISAAC","DIEGO MATEO","MIKEL","ALONSO","RICHIE","DIEGO JAIME"];
 
 const cont = document.getElementById("atletas");
-
 atletas.forEach(function(a){
  let b=document.createElement("button");
  b.innerText=a;
- b.onclick=function(){
-   localStorage.setItem("atleta",a);
-   mostrarSemana();
- };
+ b.onclick=function(){localStorage.setItem("atleta",a); mostrarSemana();};
  cont.appendChild(b);
 });
 
-window.mostrarSemana = function(){
+function mostrarSemana(){
  document.getElementById("atletas").style.display="none";
  document.getElementById("semana").style.display="block";
 }
 
-window.setSemana = function(s){
+function setSemana(s){
  localStorage.setItem("semana",s);
  document.getElementById("semana").style.display="none";
  document.getElementById("main").style.display="block";
  document.getElementById("info").innerText = localStorage.getItem("atleta")+" - Semana "+s;
 }
 
-window.guardar = function(ej){
+function guardar(ej){
  const atleta=localStorage.getItem("atleta");
  const semana=localStorage.getItem("semana");
  const dia=new Date().toLocaleDateString('es-MX',{weekday:'long'});
@@ -82,11 +75,10 @@ window.guardar = function(ej){
    dia: dia,
    ejercicio: ej
  });
-
  alert("Guardado");
 }
 
-window.verReporte = async function(){
+async function verReporte(){
  const atleta=localStorage.getItem("atleta");
  const semana=localStorage.getItem("semana");
 
@@ -96,7 +88,6 @@ window.verReporte = async function(){
  .get();
 
  let conteo={};
-
  snap.forEach(function(d){
    const dia=d.data().dia;
    conteo[dia]=(conteo[dia]||0)+1;
@@ -106,11 +97,8 @@ window.verReporte = async function(){
  for(let d in conteo){
    txt+=d+": "+conteo[d]+"<br>";
  }
-
  document.getElementById("reporte").innerHTML=txt;
 }
-
-};
 </script>
 
 </body>
