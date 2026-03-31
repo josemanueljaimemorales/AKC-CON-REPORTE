@@ -34,37 +34,45 @@ button{padding:15px;margin:10px;font-size:18px}
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
 <script>
+<script>
+window.onload = function(){
+
 const firebaseConfig = {
   apiKey: "AIzaSyBNRAkDXLlw5fyiT01-ZfUyB0A7ShsAxyg",
   authDomain: "akc-con-reporte.firebaseapp.com",
   projectId: "akc-con-reporte"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const atletas = ["YERIK","FER","VELA","ISAAC","DIEGO MATEO","MIKEL","ALONSO","RICHIE","DIEGO JAIME"];
 
 const cont = document.getElementById("atletas");
+
 atletas.forEach(function(a){
  let b=document.createElement("button");
  b.innerText=a;
- b.onclick=function(){localStorage.setItem("atleta",a); mostrarSemana();};
+ b.onclick=function(){
+   localStorage.setItem("atleta",a);
+   mostrarSemana();
+ };
  cont.appendChild(b);
 });
 
-function mostrarSemana(){
+window.mostrarSemana = function(){
  document.getElementById("atletas").style.display="none";
  document.getElementById("semana").style.display="block";
 }
 
-function setSemana(s){
+window.setSemana = function(s){
  localStorage.setItem("semana",s);
  document.getElementById("semana").style.display="none";
  document.getElementById("main").style.display="block";
  document.getElementById("info").innerText = localStorage.getItem("atleta")+" - Semana "+s;
 }
 
-function guardar(ej){
+window.guardar = function(ej){
  const atleta=localStorage.getItem("atleta");
  const semana=localStorage.getItem("semana");
  const dia=new Date().toLocaleDateString('es-MX',{weekday:'long'});
@@ -75,10 +83,11 @@ function guardar(ej){
    dia: dia,
    ejercicio: ej
  });
+
  alert("Guardado");
 }
 
-async function verReporte(){
+window.verReporte = async function(){
  const atleta=localStorage.getItem("atleta");
  const semana=localStorage.getItem("semana");
 
@@ -88,6 +97,7 @@ async function verReporte(){
  .get();
 
  let conteo={};
+
  snap.forEach(function(d){
    const dia=d.data().dia;
    conteo[dia]=(conteo[dia]||0)+1;
@@ -97,8 +107,11 @@ async function verReporte(){
  for(let d in conteo){
    txt+=d+": "+conteo[d]+"<br>";
  }
+
  document.getElementById("reporte").innerHTML=txt;
 }
+
+};
 </script>
 
 </body>
