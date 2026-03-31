@@ -111,46 +111,8 @@ ${r.Reps ? " | Reps: "+r.Reps : ""}
 ${r.Peso ? " | Peso: "+r.Peso : ""}
 </div>
 </button>
-
 <button class="check" onclick="marcar(${i}, this)">✔</button>
-
 </div>
-`).join('')
-);
-return;
-}
-
-function marcar(i,btn){
-let r = listaActual[i];
-let nombre = r.Ejercicio || r.Nombre || "Ejercicio";
-btn.classList.toggle("done");
-guardarEjercicio(nombre);
-}
-
-function guardarEjercicio(nombre){
- const atleta = localStorage.getItem("atleta") || "SIN_NOMBRE";
- const semana = window.sem || "1";
- const dia = new Date().toLocaleDateString('es-MX',{weekday:'long'});
-
- if(typeof db !== "undefined"){
-   db.collection("registros").add({
-     atleta, semana, dia, ejercicio: nombre, fecha:new Date()
-   });
- }
-}
-
-listaActual = items;
-render(
-`<button class="back" onclick="history.back()">⬅</button>`+
-items.map((r,i)=>`
-<button class="btn" onclick="video(${i})">
-${r.Ejercicio||r.Nombre||"Ejercicio"}
-<div class="info">
-${r.Series ? "Series: "+r.Series : ""}
-${r.Reps ? " | Reps: "+r.Reps : ""}
-${r.Peso ? " | Peso: "+r.Peso : ""}
-</div>
-</button>
 `).join('')
 );
 }
@@ -180,3 +142,23 @@ render(`
 }
 
 init();
+
+
+function marcar(i,btn){
+ let r = listaActual[i];
+ let nombre = r.Ejercicio || r.Nombre || "Ejercicio";
+ btn.classList.toggle("done");
+ guardarEjercicio(nombre);
+}
+
+function guardarEjercicio(nombre){
+ const atleta = localStorage.getItem("atleta") || "SIN_NOMBRE";
+ const semana = window.sem || "1";
+ const dia = new Date().toLocaleDateString('es-MX',{weekday:'long'});
+
+ if(typeof db !== "undefined"){
+   db.collection("registros").add({
+     atleta, semana, dia, ejercicio: nombre, fecha:new Date()
+   });
+ }
+}
