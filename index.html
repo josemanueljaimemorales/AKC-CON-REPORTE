@@ -2,37 +2,25 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>AKC Tracking</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKC</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <style>
-body{font-family:Arial;text-align:center}
-button{padding:15px;margin:10px;font-size:18px}
+.card{display:flex;justify-content:space-between;align-items:center;}
+.check{padding:10px;border-radius:10px;background:#eee;}
+.check.done{background:green;color:white;}
 </style>
+
 </head>
 <body>
+<img src="logo.png" class="logo">
+<div id="app"></div>
+<script src="app.js"></script>
 
-<h2>Selecciona tu nombre</h2>
-<div id="atletas"></div>
-
-<div id="semana" style="display:none;">
-<h2>Selecciona semana</h2>
-<button onclick="setSemana(1)">Semana 1</button>
-<button onclick="setSemana(2)">Semana 2</button>
-<button onclick="setSemana(3)">Semana 3</button>
-<button onclick="setSemana(4)">Semana 4</button>
-</div>
-
-<div id="main" style="display:none;">
-<h2 id="info"></h2>
-<button onclick="guardar('Ejercicio 1')">✔ Ejercicio 1</button>
-<button onclick="guardar('Ejercicio 2')">✔ Ejercicio 2</button>
-<button onclick="verReporte()">Ver reporte</button>
-</div>
-
-<div id="reporte"></div>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyBNRAkDXLlw5fyiT01-ZfUyB0A7ShsAxyg",
@@ -41,64 +29,6 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
-const atletas = ["YERIK","FER","VELA","ISAAC","DIEGO MATEO","MIKEL","ALONSO","RICHIE","DIEGO JAIME"];
-
-const cont = document.getElementById("atletas");
-atletas.forEach(function(a){
- let b=document.createElement("button");
- b.innerText=a;
- b.onclick=function(){localStorage.setItem("atleta",a); mostrarSemana();};
- cont.appendChild(b);
-});
-
-function mostrarSemana(){
- document.getElementById("atletas").style.display="none";
- document.getElementById("semana").style.display="block";
-}
-
-function setSemana(s){
- localStorage.setItem("semana",s);
- document.getElementById("semana").style.display="none";
- document.getElementById("main").style.display="block";
- document.getElementById("info").innerText = localStorage.getItem("atleta")+" - Semana "+s;
-}
-
-function guardar(ej){
- const atleta=localStorage.getItem("atleta");
- const semana=localStorage.getItem("semana");
- const dia=new Date().toLocaleDateString('es-MX',{weekday:'long'});
-
- db.collection("registros").add({
-   atleta: atleta,
-   semana: semana,
-   dia: dia,
-   ejercicio: ej
- });
- alert("Guardado");
-}
-
-async function verReporte(){
- const atleta=localStorage.getItem("atleta");
- const semana=localStorage.getItem("semana");
-
- const snap=await db.collection("registros")
- .where("atleta","==",atleta)
- .where("semana","==",semana)
- .get();
-
- let conteo={};
- snap.forEach(function(d){
-   const dia=d.data().dia;
-   conteo[dia]=(conteo[dia]||0)+1;
- });
-
- let txt="<h3>Reporte</h3>";
- for(let d in conteo){
-   txt+=d+": "+conteo[d]+"<br>";
- }
- document.getElementById("reporte").innerHTML=txt;
-}
 </script>
 
 </body>
