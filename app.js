@@ -104,23 +104,50 @@ mostrar(items);
 
 function mostrar(items){
 listaActual = items;
+
+let atleta = localStorage.getItem("atleta") || "SIN_NOMBRE";
+let semana = window.sem || "1";
+
+db.collection("registros")
+.where("atleta","==",atleta)
+.where("semana","==",semana)
+.get()
+.then(snap=>{
+
+let hechos = {};
+snap.forEach(d=>{
+  hechos[d.data().ejercicio] = true;
+});
+
 render(
 `<button class="back" onclick="history.back()">⬅</button>`+
-items.map((r,i)=>`
+items.map((r,i)=>{
+
+let nombre = r.Ejercicio||r.Nombre||"Ejercicio";
+let done = hechos[nombre] ? "done" : "";
+
+return `
 <div class="card">
 
 <button class="btn" onclick="video(${i})">
-${r.Ejercicio||r.Nombre||"Ejercicio"}
+${nombre}
 <div class="info">
 ${r.Series ? "Series: "+r.Series : ""}
 ${r.Reps ? " | Reps: "+r.Reps : ""}
 ${r.Peso ? " | Peso: "+r.Peso : ""}
 </div>
 </button>
-<button class="check" onclick="marcar(${i}, this)">✔</button>
+
+<button class="check ${done}" onclick="marcar(${i}, this)">✔</button>
+
 </div>
-`).join('')
+`;
+
+}).join('')
 );
+
+});
+
 }
 
 function convertir(raw){
