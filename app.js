@@ -32,7 +32,9 @@ let html = `
 <button class="btn" onclick="preventivo()">🛡 Preventivo</button>
 <button class="btn" onclick="orientacion()">🧭 Orientación</button>
 <button class="btn" onclick="drill()">⚙ Drill</button>
-<button class="btn" onclick="fesp()">🏋 F ESP APA</button>`;
+<button class="btn" onclick="fesp()">🏋 F ESP APA</button>
+<button class="btn" onclick="verReporte()">📊 Reporte</button>
+`;
 if(first){
 document.getElementById('app').innerHTML = html;
 history.replaceState({html:html}, '');
