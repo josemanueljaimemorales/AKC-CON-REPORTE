@@ -13,7 +13,13 @@ document.getElementById('app').innerHTML = e.state.html;
 };
 
 async function init(){
-const res=await fetch('AKC.xlsx');
+const res = await fetch('./AKC.xlsx?' + Date.now());
+
+if(!res.ok){
+  alert("Error cargando AKC.xlsx");
+  return;
+}
+
 const buf=await res.arrayBuffer();
 const wb=XLSX.read(buf);
 data=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
