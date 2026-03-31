@@ -187,11 +187,13 @@ snap.forEach(d=>{
 
  let atleta = r.atleta;
  let dia = r.dia;
+ let semana = r.semana || "1";
 
  if(!data[atleta]) data[atleta] = {};
- if(!data[atleta][dia]) data[atleta][dia] = 0;
+ if(!data[atleta][semana]) data[atleta][semana] = {};
+ if(!data[atleta][semana][dia]) data[atleta][semana][dia] = 0;
 
- data[atleta][dia]++;
+ data[atleta][semana][dia]++;
 });
 
 let html = `
@@ -203,15 +205,24 @@ for(let atleta in data){
 
  html += `<h3>${atleta}</h3>`;
 
- let total = 0;
+ for(let semana in data[atleta]){
 
- for(let dia in data[atleta]){
-   html += `<p>${dia}: ${data[atleta][dia]}</p>`;
-   total += data[atleta][dia];
+   html += `<h4>Semana ${semana}</h4>`;
+
+   let total = 0;
+
+   for(let dia in data[atleta][semana]){
+     html += `<p>${dia}: ${data[atleta][semana][dia]}</p>`;
+     total += data[atleta][semana][dia];
+   }
+
+   html += `<b>Total: ${total}</b><br><br>`;
  }
 
- html += `<b>Total: ${total}</b><hr>`;
+ html += `<hr>`;
 }
+
+html += `<button class="btn" onclick="reiniciarConteo()">🔄 Reiniciar conteo</button>`;
 
 render(html);
 
