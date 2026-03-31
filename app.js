@@ -239,3 +239,25 @@ function guardarEjercicio(nombre){
    });
  }
 }
+
+function reiniciarConteo(){
+
+if(!confirm("¿Seguro quieres borrar todos los registros?")) return;
+
+db.collection("registros").get().then(snap=>{
+  let batch = db.batch();
+
+  snap.forEach(doc=>{
+    batch.delete(doc.ref);
+  });
+
+  batch.commit().then(()=>{
+    alert("Conteo reiniciado");
+    home();
+  });
+
+});
+
+}
+
+html += `<button class="btn" onclick="reiniciarConteo()">🔄 Reiniciar conteo</button>`;
