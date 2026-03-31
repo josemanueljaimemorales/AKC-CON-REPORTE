@@ -1,4 +1,5 @@
 let data=[];
+const PASSWORD = "jmjm0808";
 let listaActual=[];
 
 function render(html){
@@ -177,6 +178,13 @@ render(`
 }
 
 function verReporte(){
+
+let pass = prompt("Ingresa la contraseña");
+
+if(pass !== PASSWORD){
+  alert("Contraseña incorrecta");
+  return;
+}
 
 db.collection("registros").get().then(snap=>{
 
