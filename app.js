@@ -309,5 +309,3 @@ db.collection("registros").get().then(snap=>{
 });
 
 }
-
-html += `<button class="btn" onclick="reiniciarConteo()">🔄 Reiniciar conteo</button>`;
