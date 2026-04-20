@@ -1,311 +1,192 @@
-let data=[];
-const PASSWORD = "jmjm0808";
-let listaActual=[];
+let data = [];
 
-function render(html){
-document.getElementById('app').innerHTML = html;
-history.pushState({html:html}, '');
+const app = document.getElementById("app");
+
+function clearApp(){
+    app.innerHTML = "";
 }
 
-window.onpopstate = function(e){
-if(e.state && e.state.html){
-document.getElementById('app').innerHTML = e.state.html;
-}
-};
-
-async function init(){
-const res = await fetch('./AKC.xlsx?' + Date.now());
-
-if(!res.ok){
-  alert("Error cargando AKC.xlsx");
-  return;
+function addButton(text, onClick){
+    const btn = document.createElement("button");
+    btn.className = "btn";
+    btn.innerText = text;
+    btn.onclick = onClick;
+    app.appendChild(btn);
 }
 
-const buf=await res.arrayBuffer();
-const wb=XLSX.read(buf);
-data=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
-home(true);
+function addBackButton(){
+    const btn = document.createElement("button");
+    btn.className = "back";
+    btn.innerText = "⬅ Volver";
+    btn.onclick = renderMenu;
+    app.appendChild(btn);
 }
 
-function home(first=false){
-let html = `
-<button class="btn" onclick="fuerza()">💪 Fuerza</button>
-<button class="btn" onclick="preventivo()">🛡 Preventivo</button>
-<button class="btn" onclick="orientacion()">🧭 Orientación</button>
-<button class="btn" onclick="drill()">⚙ Drill</button>
-<button class="btn" onclick="fesp()">🏋 F ESP APA</button>
-<button class="btn" onclick="verReporte()">📊 Reporte</button>
-`;
-if(first){
-document.getElementById('app').innerHTML = html;
-history.replaceState({html:html}, '');
-}else{
-render(html);
-}
-}
-
-function fuerza(){
-render(`
-<button class="back" onclick="history.back()">⬅</button>
-<button class="btn" onclick="dias('1')">Semana 1</button>
-<button class="btn" onclick="dias('2')">Semana 2</button>
-<button class="btn" onclick="dias('3')">Semana 3</button>`);
-}
-
-function dias(sem){
-window.sem=sem;
-render(`
-<button class="back" onclick="history.back()">⬅</button>
-<button class="btn" onclick="lista('Fuerza','Lunes')">Lunes</button>
-<button class="btn" onclick="lista('Fuerza','Miercoles')">Miércoles</button>
-<button class="btn" onclick="lista('Fuerza','Viernes')">Viernes</button>`);
-}
-
-function lista(tipo,dia){
-let items=data.filter(r=>r.Tipo==="Fuerza" && r.Semana==window.sem && r.Dia===dia);
-mostrar(items);
-}
-
-function preventivo(){
-render(`
-<button class="back" onclick="history.back()">⬅</button>
-<button class="btn" onclick="listaPrev('1')">Semana 1</button>
-<button class="btn" onclick="listaPrev('2')">Semana 2</button>
-<button class="btn" onclick="listaPrev('3')">Semana 3</button>`);
-}
-
-function listaPrev(sem){
-let items=data.filter(r=>r.Tipo==="Preventivo" && r.Semana==sem);
-mostrar(items);
-}
-
-function orientacion(){
-let items=data.filter(r=>(r.Tipo||"").toLowerCase().includes("orient"));
-mostrar(items);
-}
-
-function drill(){
-let aparatos=[...new Set(data.filter(r=>r.Tipo==="Drill").map(r=>r.Aparato))];
-render(
-`<button class="back" onclick="history.back()">⬅</button>`+
-aparatos.map(a=>`<button class="btn" onclick="listaA('Drill','${a}')">${a}</button>`).join('')
-);
-}
-
-function fesp(){
-let aparatos=[...new Set(data.filter(r=>r.Tipo==="F ESP APA").map(r=>r.Aparato))];
-render(
-`<button class="back" onclick="history.back()">⬅</button>`+
-aparatos.map(a=>`<button class="btn" onclick="listaA('F ESP APA','${a}')">${a}</button>`).join('')
-);
-}
-
-function listaA(tipo,aparato){
-let items=data.filter(r=>r.Tipo===tipo && r.Aparato===aparato);
-mostrar(items);
-}
-
-function mostrar(items){
-listaActual = items;
-
-let atleta = localStorage.getItem("atleta") || "SIN_NOMBRE";
-let semana = window.sem || "1";
-let dia = new Date().toLocaleDateString('es-MX',{weekday:'long'});
-
-db.collection("registros")
-.where("atleta","==",atleta)
-.where("semana","==",semana)
-.where("dia","==",dia)
-.get()
-.then(snap=>{
-
-let hechos = {};
-snap.forEach(d=>{
- hechos[d.data().ejercicio] = true;
+fetch("AKC.xlsx")
+.then(res => res.arrayBuffer())
+.then(buffer => {
+    const workbook = XLSX.read(buffer);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    data = XLSX.utils.sheet_to_json(sheet);
+    renderMenu();
 });
 
-render(
-`<button class="back" onclick="history.back()">⬅</button>`+
-
-items.map((r,i)=>{
-
-let nombre = r.Ejercicio||r.Nombre||"Ejercicio";
-
-// 👇 SOLO fuerza y preventivo
-let mostrarCheck = (r.Tipo === "Fuerza" || r.Tipo === "Preventivo");
-
-let done = hechos[nombre] ? "done" : "";
-
-return `
-<div class="card">
-
-<button class="btn" onclick="video(${i})">
-${nombre}
-<div class="info">
-${r.Series ? "Series: "+r.Series : ""}
-${r.Reps ? " | Reps: "+r.Reps : ""}
-${r.Peso ? " | Peso: "+r.Peso : ""}
-</div>
-</button>
-
-${
-mostrarCheck
-? `<button class="check ${done}" ${done ? "disabled" : ""} onclick="marcar(${i}, this)">✔</button>`
-: ``
+function renderMenu(){
+    clearApp();
+    addButton("Fuerza", renderFuerza);
+    addButton("Preventivos", renderPreventivos);
+    addButton("Orientación", renderOrientacion);
+    addButton("Reporte", renderReporte);
 }
 
-</div>
-`;
+function renderFuerza(){
+    clearApp();
+    addBackButton();
 
-}).join('')
-);
+    const semanas = [...new Set(data.filter(e=>e.Tipo==="Fuerza").map(e => e.Semana))].sort((a,b)=>a-b);
 
-});
-
+    semanas.forEach(sem => {
+        addButton("Semana " + sem, () => {
+            mostrarEjercicios(data.filter(e => e.Tipo==="Fuerza" && e.Semana===sem));
+        });
+    });
 }
 
-function convertir(raw){
-if(!raw) return "";
-raw = raw.split("?")[0];
-if(raw.includes("shorts")) return "https://www.youtube.com/embed/"+raw.split("shorts/")[1];
-if(raw.includes("watch?v=")) return "https://www.youtube.com/embed/"+raw.split("watch?v=")[1];
-if(raw.includes("embed")) return raw;
-return "";
+function renderPreventivos(){
+    clearApp();
+    addBackButton();
+    addButton("Por semana", renderPreventivosSemanas);
+    addButton("Por segmento", renderPreventivosSegmento);
 }
 
-function video(i){
-let r = listaActual[i];
-let raw = r.Video || r.Link || r.LINK || r.video || r.link || "";
-let url = convertir(raw);
+function renderPreventivosSemanas(){
+    clearApp();
+    addBackButton();
 
-if(!url){
-alert("Video no válido");
-return;
+    const semanas = [...new Set(data.filter(e=>e.Tipo==="Preventivo").map(e => e.Semana))].sort((a,b)=>a-b);
+
+    semanas.forEach(sem => {
+        addButton("Semana " + sem, () => {
+            mostrarEjercicios(data.filter(e => e.Tipo==="Preventivo" && e.Semana===sem));
+        });
+    });
 }
 
-render(`
-<button class="back" onclick="history.back()">⬅</button>
-<iframe class="video" src="${url}" allowfullscreen></iframe>`);
+function renderPreventivosSegmento(){
+    clearApp();
+    addBackButton();
+
+    const segmentos = [...new Set(data.filter(e=>e.Tipo==="Preventivo").map(e => e.Segmento).filter(e=>e))].sort();
+
+    segmentos.forEach(seg => {
+        addButton(seg, () => {
+            mostrarEjercicios(data.filter(e => e.Tipo==="Preventivo" && e.Segmento===seg));
+        });
+    });
 }
 
-function verReporte(){
-
-let pass = prompt("Ingresa la contraseña");
-
-if(pass !== PASSWORD){
-  alert("Contraseña incorrecta");
-  return;
+function renderOrientacion(){
+    clearApp();
+    addBackButton();
+    addButton("Por semana", renderOrientacionSemanas);
+    addButton("Por aparato", renderOrientacionAparato);
 }
 
-db.collection("registros").get().then(snap=>{
+function renderOrientacionSemanas(){
+    clearApp();
+    addBackButton();
 
-let data = {};
+    const semanas = [...new Set(data.filter(e=>e.Tipo==="Orientación").map(e => e.Semana))].sort((a,b)=>a-b);
 
-snap.forEach(d=>{
- let r = d.data();
-
- let atleta = r.atleta;
- let dia = r.dia;
- let semana = r.semana || "1";
-
- if(!data[atleta]) data[atleta] = {};
- if(!data[atleta][semana]) data[atleta][semana] = {};
- if(!data[atleta][semana][dia]) data[atleta][semana][dia] = 0;
-
- data[atleta][semana][dia]++;
-});
-
-let html = `
-<button class="back" onclick="history.back()">⬅</button>
-<h2>📊 REPORTE GENERAL</h2>
-`;
-
-for(let atleta in data){
-
- html += `<h3>${atleta}</h3>`;
-
- for(let semana in data[atleta]){
-
-   html += `<h4>Semana ${semana}</h4>`;
-
-   let total = 0;
-
-   for(let dia in data[atleta][semana]){
-     html += `<p>${dia}: ${data[atleta][semana][dia]}</p>`;
-     total += data[atleta][semana][dia];
-   }
-
-   html += `<b>Total: ${total}</b><br><br>`;
- }
-
- html += `<hr>`;
+    semanas.forEach(sem => {
+        addButton("Semana " + sem, () => {
+            mostrarEjercicios(data.filter(e => e.Tipo==="Orientación" && e.Semana===sem));
+        });
+    });
 }
 
-html += `<button class="btn" onclick="reiniciarConteo()">🔄 Reiniciar conteo</button>`;
+function renderOrientacionAparato(){
+    clearApp();
+    addBackButton();
 
-render(html);
+    const aparatos = [...new Set(data.filter(e=>e.Tipo==="Orientación").map(e => e.Aparato).filter(e=>e))].sort();
 
-});
-
-}
-init();
-
-
-function marcar(i,btn){
-
- if(btn.classList.contains("done")){
-   return;
- }
-
- let r = listaActual[i];
- let nombre = r.Ejercicio || r.Nombre || "Ejercicio";
-
- btn.classList.add("done");
- btn.disabled = true;
-
- guardarEjercicio(nombre);
-
+    aparatos.forEach(ap => {
+        addButton(ap, () => {
+            mostrarEjercicios(data.filter(e => e.Tipo==="Orientación" && e.Aparato===ap));
+        });
+    });
 }
 
-async function guardarEjercicio(nombre){
+function mostrarEjercicios(lista){
+    clearApp();
+    addBackButton();
 
- const atleta = localStorage.getItem("atleta") || "SIN_NOMBRE";
- const semana = window.sem || "1";
- const dia = new Date().toLocaleDateString('es-MX',{weekday:'long'});
+    lista.forEach(e => {
+        const div = document.createElement("div");
+        div.className = "card";
 
- const snap = await db.collection("registros")
-   .where("atleta","==",atleta)
-   .where("semana","==",semana)
-   .where("dia","==",dia)
-   .where("ejercicio","==",nombre)
-   .get();
+        const check = document.createElement("div");
+        check.className = "check";
+        check.innerText = "✔";
+        check.onclick = () => check.classList.toggle("done");
 
- if(!snap.empty){
-   return;
- }
+        const btn = document.createElement("button");
+        btn.className = "btn";
+        btn.innerText = e.Nombre || "Ejercicio";
+        btn.onclick = () => {
+            clearApp();
+            addBackButton();
 
- db.collection("registros").add({
-   atleta, semana, dia, ejercicio:nombre, fecha:new Date()
- });
+            const iframe = document.createElement("iframe");
+            iframe.className = "video";
+            iframe.src = e.Link;
+            app.appendChild(iframe);
+        };
 
+        div.appendChild(check);
+        div.appendChild(btn);
+        app.appendChild(div);
+    });
 }
 
-function reiniciarConteo(){
+function renderReporte(){
+    clearApp();
+    addBackButton();
 
-if(!confirm("¿Seguro quieres borrar todos los registros?")) return;
+    const atleta = localStorage.getItem("atleta") || "Sin atleta";
 
-db.collection("registros").get().then(snap=>{
-  let batch = db.batch();
+    const titulo = document.createElement("h3");
+    titulo.innerText = "Reporte de: " + atleta;
+    app.appendChild(titulo);
 
-  snap.forEach(doc=>{
-    batch.delete(doc.ref);
-  });
+    const ejercicios = data.filter(e => e.Tipo==="Fuerza");
 
-  batch.commit().then(()=>{
-    alert("Conteo reiniciado");
-    home();
-  });
+    ejercicios.forEach(e => {
+        const div = document.createElement("div");
+        div.className = "card";
 
-});
+        const check = document.createElement("div");
+        check.className = "check";
+        check.innerText = "✔";
 
+        check.onclick = () => {
+            check.classList.toggle("done");
+
+            if(atleta){
+                db.collection("reportes").add({
+                    atleta,
+                    ejercicio: e.Nombre,
+                    fecha: new Date()
+                });
+            }
+        };
+
+        const txt = document.createElement("div");
+        txt.innerText = e.Nombre;
+
+        div.appendChild(check);
+        div.appendChild(txt);
+        app.appendChild(div);
+    });
 }

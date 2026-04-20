@@ -6,49 +6,13 @@
 <title>AKC</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
-<style>
-.card{display:flex;justify-content:space-between;align-items:center;}
-.check{padding:10px;border-radius:10px;background:#eee;}
-.check.done{background:green;color:white;}
-.atletas{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:20px;}
-</style>
-
 </head>
 <body>
 
-<div class="atletas">
-<button onclick="seleccionarAtleta('YERIK')">YERIK</button>
-<button onclick="seleccionarAtleta('FER')">FER</button>
-<button onclick="seleccionarAtleta('VELA')">VELA</button>
-<button onclick="seleccionarAtleta('ISAAC')">ISAAC</button>
-<button onclick="seleccionarAtleta('DIEGO MATEO')">DIEGO MATEO</button>
-<button onclick="seleccionarAtleta('MIKEL')">MIKEL</button>
-<button onclick="seleccionarAtleta('ALONSO')">ALONSO</button>
-<button onclick="seleccionarAtleta('RICHIE')">RICHIE</button>
-<button onclick="seleccionarAtleta('DIEGO JAIME')">DIEGO JAIME</button>
-</div>
-
 <img src="logo.png" class="logo">
 <div id="app"></div>
+
 <script src="app.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBNRAkDXLlw5fyiT01-ZfUyB0A7ShsAxyg",
-  authDomain: "akc-con-reporte.firebaseapp.com",
-  projectId: "akc-con-reporte"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-function seleccionarAtleta(nombre){
- localStorage.setItem("atleta", nombre);
- alert("Atleta seleccionado: " + nombre);
-}
-</script>
 
 </body>
 </html>
