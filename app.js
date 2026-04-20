@@ -44,12 +44,15 @@ render(html);
 }
 }
 
+// ===== FUERZA =====
 function fuerza(){
 render(`
 <button class="back" onclick="history.back()">⬅</button>
 <button class="btn" onclick="dias('1')">Semana 1</button>
 <button class="btn" onclick="dias('2')">Semana 2</button>
-<button class="btn" onclick="dias('3')">Semana 3</button>`);
+<button class="btn" onclick="dias('3')">Semana 3</button>
+<button class="btn" onclick="dias('4')">Semana 4</button>
+`);
 }
 
 function dias(sem){
@@ -58,7 +61,8 @@ render(`
 <button class="back" onclick="history.back()">⬅</button>
 <button class="btn" onclick="lista('Fuerza','Lunes')">Lunes</button>
 <button class="btn" onclick="lista('Fuerza','Miercoles')">Miércoles</button>
-<button class="btn" onclick="lista('Fuerza','Viernes')">Viernes</button>`);
+<button class="btn" onclick="lista('Fuerza','Viernes')">Viernes</button>
+`);
 }
 
 function lista(tipo,dia){
@@ -66,12 +70,18 @@ let items=data.filter(r=>r.Tipo==="Fuerza" && r.Semana==window.sem && r.Dia===di
 mostrar(items);
 }
 
+// ===== PREVENTIVO =====
 function preventivo(){
 render(`
 <button class="back" onclick="history.back()">⬅</button>
+
 <button class="btn" onclick="listaPrev('1')">Semana 1</button>
 <button class="btn" onclick="listaPrev('2')">Semana 2</button>
-<button class="btn" onclick="listaPrev('3')">Semana 3</button>`);
+<button class="btn" onclick="listaPrev('3')">Semana 3</button>
+<button class="btn" onclick="listaPrev('4')">Semana 4</button>
+
+<button class="btn" onclick="preventivoSegmento()">🦵 Por segmento</button>
+`);
 }
 
 function listaPrev(sem){
@@ -79,11 +89,68 @@ let items=data.filter(r=>r.Tipo==="Preventivo" && r.Semana==sem);
 mostrar(items);
 }
 
+// 👉 NUEVO
+function preventivoSegmento(){
+
+let lista = data.filter(r=>r.Tipo==="Preventivo");
+
+let segmentos = [...new Set(lista.map(r=>r.Segmento).filter(e=>e))];
+
+render(
+`<button class="back" onclick="history.back()">⬅</button>`+
+segmentos.map(s=>
+`<button class="btn" onclick="listaSegmento('${s}')">${s}</button>`
+).join('')
+);
+
+}
+
+function listaSegmento(seg){
+let items = data.filter(r=>r.Tipo==="Preventivo" && r.Segmento===seg);
+mostrar(items);
+}
+
+// ===== ORIENTACIÓN =====
 function orientacion(){
+
+render(`
+<button class="back" onclick="history.back()">⬅</button>
+
+<button class="btn" onclick="orientacionLista()">Ver todos</button>
+<button class="btn" onclick="orientacionAparato()">Por aparato</button>
+`);
+}
+
+function orientacionLista(){
 let items=data.filter(r=>(r.Tipo||"").toLowerCase().includes("orient"));
 mostrar(items);
 }
 
+// 👉 NUEVO
+function orientacionAparato(){
+
+let lista = data.filter(r=>(r.Tipo||"").toLowerCase().includes("orient"));
+
+let aparatos = [...new Set(lista.map(r=>r.Aparato).filter(e=>e))];
+
+render(
+`<button class="back" onclick="history.back()">⬅</button>`+
+aparatos.map(a=>
+`<button class="btn" onclick="listaAparato('${a}')">${a}</button>`
+).join('')
+);
+
+}
+
+function listaAparato(ap){
+let items = data.filter(r=>
+(r.Tipo||"").toLowerCase().includes("orient") &&
+r.Aparato===ap
+);
+mostrar(items);
+}
+
+// ===== DRILL =====
 function drill(){
 let aparatos=[...new Set(data.filter(r=>r.Tipo==="Drill").map(r=>r.Aparato))];
 render(
@@ -92,6 +159,7 @@ aparatos.map(a=>`<button class="btn" onclick="listaA('Drill','${a}')">${a}</butt
 );
 }
 
+// ===== F ESP =====
 function fesp(){
 let aparatos=[...new Set(data.filter(r=>r.Tipo==="F ESP APA").map(r=>r.Aparato))];
 render(
@@ -105,6 +173,7 @@ let items=data.filter(r=>r.Tipo===tipo && r.Aparato===aparato);
 mostrar(items);
 }
 
+// ===== MOSTRAR =====
 function mostrar(items){
 listaActual = items;
 
@@ -131,7 +200,6 @@ items.map((r,i)=>{
 
 let nombre = r.Ejercicio||r.Nombre||"Ejercicio";
 
-// 👇 SOLO fuerza y preventivo
 let mostrarCheck = (r.Tipo === "Fuerza" || r.Tipo === "Preventivo");
 
 let done = hechos[nombre] ? "done" : "";
@@ -164,6 +232,7 @@ mostrarCheck
 
 }
 
+// ===== VIDEO =====
 function convertir(raw){
 if(!raw) return "";
 raw = raw.split("?")[0];
@@ -188,6 +257,7 @@ render(`
 <iframe class="video" src="${url}" allowfullscreen></iframe>`);
 }
 
+// ===== REPORTE =====
 function verReporte(){
 
 let pass = prompt("Ingresa la contraseña");
@@ -250,7 +320,7 @@ render(html);
 }
 init();
 
-
+// ===== MARCAR =====
 function marcar(i,btn){
 
  if(btn.classList.contains("done")){
