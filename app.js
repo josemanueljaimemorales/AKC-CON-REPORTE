@@ -48,10 +48,13 @@ render(html);
 function fuerza(){
 render(`
 <button class="back" onclick="history.back()">⬅</button>
+
 <button class="btn" onclick="dias('1')">Semana 1</button>
 <button class="btn" onclick="dias('2')">Semana 2</button>
 <button class="btn" onclick="dias('3')">Semana 3</button>
 <button class="btn" onclick="dias('4')">Semana 4</button>
+
+<button class="btn" onclick="fuerzaSegmento()">💪 Por segmento</button>
 `);
 }
 
@@ -68,6 +71,33 @@ render(`
 function lista(tipo,dia){
 let items=data.filter(r=>r.Tipo==="Fuerza" && r.Semana==window.sem && r.Dia===dia);
 mostrar(items);
+}
+
+// ===== NUEVO: FUERZA POR SEGMENTO =====
+function fuerzaSegmento(){
+
+let lista = data.filter(r=>r.Tipo==="Fuerza");
+
+let segmentos = [...new Set(lista.map(r=>r.Segmento).filter(e=>e))];
+
+render(
+`<button class="back" onclick="history.back()">⬅</button>`+
+segmentos.map(s=>
+`<button class="btn" onclick="listaFuerzaSegmento('${s}')">${s}</button>`
+).join('')
+);
+
+}
+
+function listaFuerzaSegmento(seg){
+
+let items = data.filter(r=>
+  r.Tipo==="Fuerza" &&
+  r.Segmento===seg
+);
+
+mostrar(items);
+
 }
 
 // ===== PREVENTIVO =====
@@ -89,7 +119,6 @@ let items=data.filter(r=>r.Tipo==="Preventivo" && r.Semana==sem);
 mostrar(items);
 }
 
-// 👉 NUEVO
 function preventivoSegmento(){
 
 let lista = data.filter(r=>r.Tipo==="Preventivo");
@@ -126,7 +155,6 @@ let items=data.filter(r=>(r.Tipo||"").toLowerCase().includes("orient"));
 mostrar(items);
 }
 
-// 👉 NUEVO
 function orientacionAparato(){
 
 let lista = data.filter(r=>(r.Tipo||"").toLowerCase().includes("orient"));
