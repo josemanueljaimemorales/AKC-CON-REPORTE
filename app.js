@@ -29,12 +29,15 @@ home(true);
 
 function home(first=false){
 let html = `
-<button class="btn" onclick="fuerza()">💪 Fuerza</button>
-<button class="btn" onclick="preventivo()">🛡 Preventivo</button>
-<button class="btn" onclick="orientacion()">🧭 Orientación</button>
-<button class="btn" onclick="drill()">⚙ Drill</button>
-<button class="btn" onclick="fesp()">🏋 F ESP APA</button>
-<button class="btn" onclick="verReporte()">📊 Reporte</button>
+<div class="home-menu">
+  <div class="menu-title">SISTEMAS DE ENTRENAMIENTO</div>
+  <button class="btn" onclick="fuerza()"><span class="icon">💪</span><span><b>FUERZA</b><small>Desarrollo de fuerza</small></span><i>›</i></button>
+  <button class="btn" onclick="preventivo()"><span class="icon">🛡</span><span><b>PREVENTIVO</b><small>Prevención y preparación</small></span><i>›</i></button>
+  <button class="btn" onclick="orientacion()"><span class="icon">🧭</span><span><b>ORIENTACIÓN</b><small>Guía por aparato</small></span><i>›</i></button>
+  <button class="btn" onclick="drill()"><span class="icon">⚙</span><span><b>DRILL</b><small>Trabajo técnico</small></span><i>›</i></button>
+  <button class="btn" onclick="fesp()"><span class="icon">🏋</span><span><b>FUERZA ESPECÍFICA</b><small>Fuerza por aparato</small></span><i>›</i></button>
+  <button class="btn" onclick="verReporte()"><span class="icon">📊</span><span><b>REPORTE</b><small>Seguimiento y resultados</small></span><i>›</i></button>
+</div>
 `;
 if(first){
 document.getElementById('app').innerHTML = html;
